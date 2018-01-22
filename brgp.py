@@ -37,7 +37,16 @@ DEFAULT_PYTHON_EXEC = "python"
 
 def process_single_file(file: str, noadd: bool) -> None:
     """remove bom for a single file"""
-    cont_rb = open(file, "rb")
+
+    cont_rb = None
+    try:
+        cont_rb = open(file, "rb")
+    except PermissionError:
+        print("rejected %s" % file)
+
+    if cont_rb is None:
+        return
+
     if cont_rb.read(3) == codecs.BOM_UTF8:
         cont_rb.close()
 
