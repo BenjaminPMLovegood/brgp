@@ -5,12 +5,14 @@
 import os
 import sys
 import codecs
+from pathlib import Path
 
-CURDIR = os.path.abspath(os.curdir)
+CURDIR = Path(os.path.abspath(os.curdir))
 BRGP_NAME = os.path.basename(__file__)
 BRGP_FILE = os.path.abspath(__file__)
 
-HOOK_DIR = os.path.join(os.path.join(CURDIR, ".git"), "hooks")
+HOOK_DIR = CURDIR / ".git" / "hooks"
+PRE_COMMIT = HOOK_DIR / "pre-commit"
 
 HELP_TEXT = \
 """brgp
@@ -18,7 +20,7 @@ HELP_TEXT = \
 usage:
 %s [help]
     print help infomation.
-%s init [python exec]
+%s install [python exec]
     init brgp and write to git pre-commit.
 %s clear [add|noadd]
     clear all boms and add (optionally) it in git.
@@ -83,13 +85,13 @@ def get_precommit_file_content(python_exec: str) -> str:
     """get pre-commit file content"""
     return PRECOMMIT % (python_exec, BRGP_FILE)
 
-def init(argv: list):
+def install(argv: list):
     """write pre-commit"""
     python_exec = DEFAULT_PYTHON_EXEC if not argv else argv[0]
 
     precommit = get_precommit_file_content(python_exec)
 
-    precommit_file = open(os.path.join(HOOK_DIR, "pre-commit"), 'w', encoding="utf-8")
+    precommit_file = open(str(PRE_COMMIT), 'w', encoding="utf-8")
     precommit_file.write(precommit)
     precommit_file.flush()
     precommit_file.close()
@@ -105,8 +107,8 @@ def main():
 
     if (not argv) or argv[0] == "help":
         print_helpinfo()
-    elif argv[0] == "init":
-        init(argv[1:])
+    elif argv[0] == "install":
+        install(argv[1:])
     elif argv[0] == "clear":
         clear(argv[1:])
 
